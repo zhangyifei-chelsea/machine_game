@@ -15,6 +15,9 @@ void setup()
     Serial.begin(9600);
     delay(1000);
     servo[0].init(A0);
+    servo[1].init(A1);
+    servo[2].init(A2);
+    servo[3].init(A3);
     servo[4].init(A4);
     while (ps2_status != 0)
     {
@@ -27,7 +30,8 @@ void setup()
     if (ps2_status == 0)
     { //no error
         Serial.println("Controller found & successfully configured");
-    } else
+    }
+    else
     {
         Serial.println("oooops, something went wrong");
     }
@@ -46,22 +50,54 @@ void loop()
     }
     ps2x.read_gamepad(false, 0);
 
-    if (ps2x.Button(PSB_PAD_LEFT))
+    if (ps2x.Analog(PSS_LX) < 10)
     {
         servo[0].change(2);
         Serial.println("Left button held down");
-    } else if (ps2x.Button(PSB_PAD_RIGHT))
+    }
+    else if (ps2x.Analog(PSS_LX) > 220)
     {
         servo[0].change(-2);
         Serial.println("Right button held down");
     }
-    if (ps2x.Button(PSB_PAD_UP))
+    else if (ps2x.Button(PSB_PAD_UP))
     {
         servo[4].change(2);
         Serial.println("Up button held down");
-    } else if (ps2x.Button(PSB_PAD_DOWN))
+    }
+    else if (ps2x.Button(PSB_PAD_DOWN))
     {
         servo[4].change(-2);
+        Serial.println("Down button held down");
+    }
+    else if (ps2x.Analog(PSS_LY) < 10)
+    {
+        servo[1].change(2);
+        Serial.println("Up button held down");
+    }
+    else if (ps2x.Analog(PSS_LY) > 220)
+    {
+        servo[1].change(-2);
+        Serial.println("Down button held down");
+    }
+    else if (ps2x.Analog(PSS_RX) < 10)
+    {
+        servo[2].change(2);
+        Serial.println("Up button held down");
+    }
+    else if (ps2x.Analog(PSS_RX) > 220)
+    {
+        servo[2].change(-2);
+        Serial.println("Down button held down");
+    }
+    else if (ps2x.Analog(PSS_RY) < 10)
+    {
+        servo[3].change(2);
+        Serial.println("Up button held down");
+    }
+    else if (ps2x.Analog(PSS_RY) > 220)
+    {
+        servo[3].change(-2);
         Serial.println("Down button held down");
     }
 }
