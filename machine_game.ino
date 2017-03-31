@@ -4,8 +4,31 @@
 
 bool routine(const unsigned long int t, const unsigned int i);
 
+void go_straight();
+
+void go_back();
+
+void turn_left();
+
+void turn_right();
+
+void stop();
+
 PS2X ps2x;
 int ps2_status = -1;
+const int L1 = 3;
+const int L2 = 4;
+const int R1 = 5;
+const int R2 = 6;
+const int LEN = A8;
+const int REN = A9;
+
+enum CAR_STATE
+{
+    CAR_STOP, CAR_FORWARD, CAR_BACKWARD, CAR_LEFT, CAR_RIGHT
+};
+int car_state = CAR_STOP;
+
 
 MyServo servo[5];
 
@@ -19,6 +42,13 @@ void setup()
     servo[2].init(A2);
     servo[3].init(A3);
     servo[4].init(A4);
+    pinMode(L1, OUTPUT);
+    pinMode(L2, OUTPUT);
+    pinMode(R1, OUTPUT);
+    pinMode(R2, OUTPUT);
+    pinMode(LEN, OUTPUT);
+    pinMode(REN, OUTPUT);
+
     while (ps2_status != 0)
     {
         Serial.println(ps2_status);
@@ -90,15 +120,37 @@ void loop()
         servo[2].change(-2);
         Serial.println("Down button held down");
     }
-    else if (ps2x.Analog(PSS_RY) < 10)
+    /*else if (ps2x.Analog(PSS_RY) < 10)
     {
         servo[3].change(2);
         Serial.println("Up button held down");
     }
-    else if (ps2x.Analog(PSS_RY) > 220)
+    %else if (ps2x.Analog(PSS_RY) > 220)
     {
         servo[3].change(-2);
         Serial.println("Down button held down");
+    }*/
+
+
+    if (ps2x.Button(PSB_TRIANGLE) && car_state != CAR_FORWARD)
+    {
+        go_straight();
+    }
+    else if (ps2x.Button(PSB_CROSS) && car_state != CAR_BACKWARD)
+    {
+        go_back();
+    }
+    else if (ps2x.Button(PSB_SQUARE) && car_state != CAR_LEFT)
+    {
+        turn_left();
+    }
+    else if (ps2x.Button(PSB_CIRCLE) && car_state != CAR_RIGHT)
+    {
+        turn_right();
+    }
+    else if (car_state != CAR_STOP)
+    {
+        stop();
     }
 }
 
@@ -118,4 +170,58 @@ bool routine(const unsigned long int t, const unsigned int i)
     return false;
 }
 
+void go_straight()
+{
+    car_state = CAR_FORWARD;
+    digitalWrite(L1, HIGH);
+    digitalWrite(L2, LOW);
+    digitalWrite(R1, HIGH);
+    digitalWrite(R2, LOW);
+    digitalWrite(LEN, HIGH);
+    digitalWrite(REN, HIGH);
+}
+
+void go_back()
+{
+    car_state = CAR_BACKWARD;
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, HIGH);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, HIGH);
+    digitalWrite(LEN, HIGH);
+    digitalWrite(REN, HIGH);
+}
+
+void turn_left()
+{
+    car_state = CAR_LEFT;
+    digitalWrite(L1, HIGH);
+    digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, HIGH);
+    digitalWrite(LEN, HIGH);
+    digitalWrite(REN, HIGH);
+}
+
+void turn_right()
+{
+    car_state = CAR_RIGHT;
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, HIGH);
+    digitalWrite(R1, HIGH);
+    digitalWrite(R2, LOW);
+    digitalWrite(LEN, HIGH);
+    digitalWrite(REN, HIGH);
+}
+
+void stop()
+{
+    car_state = CAR_STOP;
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, LOW);
+    digitalWrite(LEN, LOW);
+    digitalWrite(REN, LOW);
+}
 
