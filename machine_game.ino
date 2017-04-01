@@ -21,19 +21,23 @@ Adafruit_PWMServoDriver pwmServoDriver;
 
 int ps2_status = -1;
 
-const int L1 = 3;
-const int L2 = 4;
-const int R1 = 5;
-const int R2 = 6;
+const int L1 = 4;
+const int L2 = 3;
+const int R1 = 6;
+const int R2 = 5;
 const int LEN = A8;
 const int REN = A9;
+const int SPEED = 0xFF;
 
 enum CAR_STATE
 {
     CAR_STOP, CAR_FORWARD, CAR_BACKWARD, CAR_LEFT, CAR_RIGHT
 };
 int car_state = CAR_STOP;
-
+enum SERVO_NAME
+{
+    SERVO_HAND, SERVO_2, SERVO_3, SERVO_4, SERVO_NET
+};
 
 MyServo servo[5] = {MyServo(0), MyServo(2), MyServo(3), MyServo(4), MyServo(5)};
 
@@ -44,7 +48,11 @@ void setup()
     delay(1000);
     // 舵机
     MyServo::setup();
-    servo[0].init(250, 400, 250);
+    servo[SERVO_HAND].init(200, 400, 250);
+    servo[SERVO_2].init(150, 550, 300);
+    servo[SERVO_3].init(150, 650, 300);
+    servo[SERVO_4].init(150, 550, 550);
+    servo[SERVO_NET].init(150, 260, 150);
 
     // 电机
     pinMode(L1, OUTPUT);
@@ -70,6 +78,8 @@ void setup()
     {
         Serial.println("oooops, something went wrong");
     }
+
+    yield();
 }
 
 void loop()
@@ -87,15 +97,15 @@ void loop()
 
     if (ps2x.Analog(PSS_LX) < 10)
     {
-        servo[0].change(2);
+        servo[SERVO_HAND].change(4);
         Serial.println("Left button held down");
     }
     else if (ps2x.Analog(PSS_LX) > 220)
     {
-        servo[0].change(-2);
+        servo[SERVO_HAND].change(-4);
         Serial.println("Right button held down");
     }
-    else if (ps2x.Button(PSB_PAD_UP))
+/*    else if (ps2x.Button(PSB_PAD_UP))
     {
         //servo[4].change(2);
         Serial.println("Up button held down");
@@ -104,37 +114,49 @@ void loop()
     {
         //servo[4].change(-2);
         Serial.println("Down button held down");
-    }
+    }*/
     else if (ps2x.Analog(PSS_LY) < 10)
     {
-        //servo[1].change(2);
+        servo[SERVO_2].change(4);
         Serial.println("Up button held down");
     }
     else if (ps2x.Analog(PSS_LY) > 220)
     {
-        //servo[1].change(-2);
+        servo[SERVO_2].change(-4);
         Serial.println("Down button held down");
     }
     else if (ps2x.Analog(PSS_RX) < 10)
     {
-        //servo[2].change(2);
+        servo[SERVO_4].change(4);
         Serial.println("Up button held down");
     }
     else if (ps2x.Analog(PSS_RX) > 220)
     {
-        //servo[2].change(-2);
+        servo[SERVO_4].change(-4);
         Serial.println("Down button held down");
     }
-    /*else if (ps2x.Analog(PSS_RY) < 10)
+    else if (ps2x.Analog(PSS_RY) < 10)
     {
-        servo[3].change(2);
+        servo[SERVO_3].change(4);
         Serial.println("Up button held down");
     }
-    %else if (ps2x.Analog(PSS_RY) > 220)
+    else if (ps2x.Analog(PSS_RY) > 220)
     {
-        servo[3].change(-2);
+        servo[SERVO_3].change(-4);
         Serial.println("Down button held down");
-    }*/
+    }
+
+
+    if (ps2x.Button(PSB_L1))
+    {
+        servo[SERVO_NET].change(8);
+        Serial.println("L1 button held down");
+    }
+    else if (ps2x.Button(PSB_R1))
+    {
+        servo[SERVO_NET].change(-8);
+        Serial.println("R1 button held down");
+    }
 
 
     if (ps2x.Button(PSB_TRIANGLE) && car_state != CAR_FORWARD)
@@ -182,8 +204,8 @@ void go_straight()
     digitalWrite(L2, LOW);
     digitalWrite(R1, HIGH);
     digitalWrite(R2, LOW);
-    digitalWrite(LEN, HIGH);
-    digitalWrite(REN, HIGH);
+    analogWrite(LEN, SPEED);
+    analogWrite(REN, SPEED);
 }
 
 void go_back()
@@ -193,30 +215,30 @@ void go_back()
     digitalWrite(L2, HIGH);
     digitalWrite(R1, LOW);
     digitalWrite(R2, HIGH);
-    digitalWrite(LEN, HIGH);
-    digitalWrite(REN, HIGH);
+    analogWrite(LEN, SPEED);
+    analogWrite(REN, SPEED);
 }
 
 void turn_left()
 {
     car_state = CAR_LEFT;
-    digitalWrite(L1, HIGH);
-    digitalWrite(L2, LOW);
-    digitalWrite(R1, LOW);
-    digitalWrite(R2, HIGH);
-    digitalWrite(LEN, HIGH);
-    digitalWrite(REN, HIGH);
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, HIGH);
+    digitalWrite(R1, HIGH);
+    digitalWrite(R2, LOW);
+    analogWrite(LEN, SPEED);
+    analogWrite(REN, SPEED);
 }
 
 void turn_right()
 {
     car_state = CAR_RIGHT;
-    digitalWrite(L1, LOW);
-    digitalWrite(L2, HIGH);
-    digitalWrite(R1, HIGH);
-    digitalWrite(R2, LOW);
-    digitalWrite(LEN, HIGH);
-    digitalWrite(REN, HIGH);
+    digitalWrite(L1, HIGH);
+    digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, HIGH);
+    digitalWrite(LEN, SPEED);
+    digitalWrite(REN, SPEED);
 }
 
 void stop()
@@ -226,7 +248,7 @@ void stop()
     digitalWrite(L2, LOW);
     digitalWrite(R1, LOW);
     digitalWrite(R2, LOW);
-    digitalWrite(LEN, LOW);
-    digitalWrite(REN, LOW);
+    analogWrite(LEN, 0);
+    analogWrite(REN, 0);
 }
 

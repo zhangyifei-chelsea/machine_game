@@ -16,7 +16,7 @@ class MyServo
 {
 public:
 
-    static Adafruit_PWMServoDriver *pwmServoDriver;
+    static Adafruit_PWMServoDriver pwmServoDriver;
 
     static void setup();
 

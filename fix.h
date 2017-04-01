@@ -21,9 +21,10 @@ unsigned long millis();
 void pinMode(int,int);
 void digitalWrite(int,int);
 void analogWrite(int,int);
+void yield();
 
-typedef unsigned char byte
-typedef bool boolean
+typedef unsigned char byte;
+typedef bool boolean;
 
 #define A0 0
 #define A1 0
