@@ -175,7 +175,7 @@ void loop()
     {
         turn_right();
     }
-    else if (car_state != CAR_STOP)
+    else if (ps2x.Button(PSB_R2) && car_state != CAR_STOP)
     {
         stop();
     }
