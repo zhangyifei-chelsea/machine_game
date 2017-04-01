@@ -6,8 +6,9 @@
 
 void MyServo::setup()
 {
-    pwmServoDriver.begin();
-    pwmServoDriver.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
+    pwmServoDriver = new Adafruit_PWMServoDriver();
+    pwmServoDriver->begin();
+    pwmServoDriver->setPWMFreq(60);  // Analog servos run at ~60 Hz updates
 }
 
 MyServo::MyServo(uint8_t num)
@@ -28,11 +29,11 @@ void MyServo::setPulse(uint16_t pulse)
     if (pulse > m_currentPulse)
     {
         for (; m_currentPulse < min(m_maxPulse, pulse); m_currentPulse++)
-            pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+            pwmServoDriver->setPWM(m_num, 0, m_currentPulse);
     }
     else
         for (; m_currentPulse > max(m_minPulse, pulse); m_currentPulse--)
-            pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+            pwmServoDriver->setPWM(m_num, 0, m_currentPulse);
 }
 
 void MyServo::change(int16_t a)
