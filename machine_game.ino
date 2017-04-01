@@ -49,9 +49,9 @@ void setup()
     // 舵机
     MyServo::setup();
     servo[SERVO_HAND].init(200, 400, 250);
-    servo[SERVO_2].init(150, 550, 300);
-    servo[SERVO_3].init(150, 650, 300);
-    servo[SERVO_4].init(150, 550, 550);
+    servo[SERVO_2].init(150, 550, 150);
+    servo[SERVO_3].init(170, 618, 182);
+    servo[SERVO_4].init(150, 570, 550);
     servo[SERVO_NET].init(150, 260, 150);
 
     // 电机

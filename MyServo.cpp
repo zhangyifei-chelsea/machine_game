@@ -22,8 +22,8 @@ void MyServo::init(uint16_t minPulse, uint16_t maxPulse, uint16_t initialPulse)
 {
     m_minPulse = minPulse;
     m_maxPulse = maxPulse;
-    m_currentPulse = minPulse;
-    setPulse(initialPulse);
+    m_currentPulse = initialPulse;
+    pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
 }
 
 void MyServo::setPulse(uint16_t pulse)
