@@ -4,21 +4,39 @@
 
 #include "MyServo.h"
 
-MyServo::MyServo()
+void MyServo::setup()
 {
-    step = 100;
+    pwmServoDriver.begin();
+    pwmServoDriver.setPWMFreq(60);  // Analog servos run at ~60 Hz updates
 }
 
-void MyServo::init(int pin)
+MyServo::MyServo(uint8_t num)
 {
-    servo.attach(pin);
-    servo.write(step);
+    m_num = num;
 }
 
-void MyServo::change(int a)
+void MyServo::init(uint16_t minPulse, uint16_t maxPulse, uint16_t initialPulse)
 {
-    step += a;
-    step = max(0, min(200, step));
-    servo.write(step);
+    m_minPulse = minPulse;
+    m_maxPulse = maxPulse;
+    m_currentPulse = minPulse;
+    setPulse(initialPulse);
+}
+
+void MyServo::setPulse(uint16_t pulse)
+{
+    if (pulse > m_currentPulse)
+    {
+        for (; m_currentPulse < min(m_maxPulse, pulse); m_currentPulse++)
+            pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+    }
+    else
+        for (; m_currentPulse > max(m_minPulse, pulse); m_currentPulse--)
+            pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+}
+
+void MyServo::change(int16_t a)
+{
+    setPulse(m_currentPulse + a);
 }
 

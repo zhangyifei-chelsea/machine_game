@@ -1,4 +1,5 @@
 #include "PS2X_lib.h"
+#include "Adafruit_PWMServoDriver.h"
 #include "MyServo.h"
 #include "fix.h"
 
@@ -15,7 +16,11 @@ void turn_right();
 void stop();
 
 PS2X ps2x;
+
+Adafruit_PWMServoDriver pwmServoDriver;
+
 int ps2_status = -1;
+
 const int L1 = 3;
 const int L2 = 4;
 const int R1 = 5;
@@ -30,18 +35,18 @@ enum CAR_STATE
 int car_state = CAR_STOP;
 
 
-MyServo servo[5];
+MyServo servo[5] = {MyServo(0), MyServo(2), MyServo(3), MyServo(4), MyServo(5)};
 
 void setup()
 {
     // put your setup code here, to run once:
     Serial.begin(9600);
     delay(1000);
-    servo[0].init(A0);
-    servo[1].init(A1);
-    servo[2].init(A2);
-    servo[3].init(A3);
-    servo[4].init(A4);
+    // 舵机
+    MyServo::setup();
+    servo[0].init(250, 400, 250);
+
+    // 电机
     pinMode(L1, OUTPUT);
     pinMode(L2, OUTPUT);
     pinMode(R1, OUTPUT);
@@ -92,32 +97,32 @@ void loop()
     }
     else if (ps2x.Button(PSB_PAD_UP))
     {
-        servo[4].change(2);
+        //servo[4].change(2);
         Serial.println("Up button held down");
     }
     else if (ps2x.Button(PSB_PAD_DOWN))
     {
-        servo[4].change(-2);
+        //servo[4].change(-2);
         Serial.println("Down button held down");
     }
     else if (ps2x.Analog(PSS_LY) < 10)
     {
-        servo[1].change(2);
+        //servo[1].change(2);
         Serial.println("Up button held down");
     }
     else if (ps2x.Analog(PSS_LY) > 220)
     {
-        servo[1].change(-2);
+        //servo[1].change(-2);
         Serial.println("Down button held down");
     }
     else if (ps2x.Analog(PSS_RX) < 10)
     {
-        servo[2].change(2);
+        //servo[2].change(2);
         Serial.println("Up button held down");
     }
     else if (ps2x.Analog(PSS_RX) > 220)
     {
-        servo[2].change(-2);
+        //servo[2].change(-2);
         Serial.println("Down button held down");
     }
     /*else if (ps2x.Analog(PSS_RY) < 10)
