@@ -13,6 +13,10 @@ void turn_left();
 
 void turn_right();
 
+void fast_left();
+
+void fast_right();
+
 void stop();
 
 PS2X ps2x;
@@ -25,10 +29,11 @@ const int L1 = 4;
 const int L2 = 3;
 const int R1 = 6;
 const int R2 = 5;
-const int LEN = A8;
-const int REN = A9;
-const int SPEED = 0xFF;
-
+const int LEN = 7;
+const int REN = 13;
+const int SPEED = 255;
+const int SPEED1 = 160;
+const int delaytime = 30;
 enum CAR_STATE
 {
     CAR_STOP, CAR_FORWARD, CAR_BACKWARD, CAR_LEFT, CAR_RIGHT
@@ -39,7 +44,7 @@ enum SERVO_NAME
     SERVO_HAND, SERVO_2, SERVO_3, SERVO_4, SERVO_NET
 };
 
-MyServo servo[5] = {MyServo(0), MyServo(2), MyServo(3), MyServo(4), MyServo(5)};
+MyServo servo[5] = {MyServo(6), MyServo(2), MyServo(3), MyServo(4), MyServo(5)};
 
 void setup()
 {
@@ -48,11 +53,11 @@ void setup()
     delay(1000);
     // 舵机
     MyServo::setup();
-    servo[SERVO_HAND].init(200, 400, 250);
-    servo[SERVO_2].init(150, 550, 150);
-    servo[SERVO_3].init(170, 618, 182);
-    servo[SERVO_4].init(150, 570, 550);
-    servo[SERVO_NET].init(150, 260, 150);
+    servo[SERVO_HAND].init(240, 428, 300);
+    servo[SERVO_2].init(150, 550, 260);//530...150
+    servo[SERVO_3].init(170, 566, 222);//226...182
+    servo[SERVO_4].init(136, 600, 580);//550'''294
+    servo[SERVO_NET].init(150, 260, 260);
 
     // 电机
     pinMode(L1, OUTPUT);
@@ -105,16 +110,58 @@ void loop()
         servo[SERVO_HAND].change(-4);
         Serial.println("Right button held down");
     }
-/*    else if (ps2x.Button(PSB_PAD_UP))
-    {
-        //servo[4].change(2);
-        Serial.println("Up button held down");
-    }
     else if (ps2x.Button(PSB_PAD_DOWN))
     {
-        //servo[4].change(-2);
-        Serial.println("Down button held down");
-    }*/
+        servo[SERVO_NET].setPulse(150);
+        servo[SERVO_2].setPulse(534);
+        servo[SERVO_3].setPulse(338);
+        servo[SERVO_4].setPulse(132);
+        servo[SERVO_HAND].setPulse(240);
+    }
+    else if (ps2x.Button(PSB_PAD_UP))
+    {
+        //servo[SERVO_HAND].setPulse(400);
+        
+        
+        servo[SERVO_4].setPulse(366,4);
+        servo[SERVO_2].setPulse(342,4);
+        servo[SERVO_3].setPulse(558,4);
+        servo[SERVO_2].setPulse(158,4);
+        servo[SERVO_NET].setPulse(150,4);
+    }
+    else if (ps2x.Button(PSB_PAD_RIGHT))
+    {
+        //servo[SERVO_HAND].setPulse(uint16_t pulse);
+        
+        
+        servo[SERVO_4].setPulse(444,4);
+        servo[SERVO_2].setPulse(230,4);
+        servo[SERVO_3].setPulse(362,4);
+        servo[SERVO_NET].setPulse(260);
+    }
+    else if (ps2x.Button(PSB_PAD_LEFT))
+    {
+        //servo[SERVO_HAND].setPulse(uint16_t pulse);
+        
+        
+        servo[SERVO_4].setPulse(444,4);
+        servo[SERVO_2].setPulse(406,4);
+        servo[SERVO_3].setPulse(214,4);
+        servo[SERVO_NET].setPulse(260);
+    }
+    else if (ps2x.Button(PSB_L2) )
+    {
+        turn_left();
+        delay(delaytime);
+        stop();
+
+    }
+    else if (ps2x.Button(PSB_R2) )
+    {
+        turn_right();
+        delay(delaytime);
+        stop();
+    }
     else if (ps2x.Analog(PSS_LY) < 10)
     {
         servo[SERVO_2].change(4);
@@ -152,6 +199,7 @@ void loop()
         servo[SERVO_NET].change(8);
         Serial.println("L1 button held down");
     }
+
     else if (ps2x.Button(PSB_R1))
     {
         servo[SERVO_NET].change(-8);
@@ -162,21 +210,25 @@ void loop()
     if (ps2x.Button(PSB_TRIANGLE) && car_state != CAR_FORWARD)
     {
         go_straight();
+        delay(delaytime);
+        stop();
     }
     else if (ps2x.Button(PSB_CROSS) && car_state != CAR_BACKWARD)
     {
         go_back();
+        delay(delaytime);
+        stop();
     }
     else if (ps2x.Button(PSB_SQUARE) && car_state != CAR_LEFT)
     {
-        turn_left();
+        fast_left();
+        delay(delaytime);
+        stop();
     }
     else if (ps2x.Button(PSB_CIRCLE) && car_state != CAR_RIGHT)
     {
-        turn_right();
-    }
-    else if (ps2x.Button(PSB_R2) && car_state != CAR_STOP)
-    {
+        fast_right();
+        delay(delaytime);
         stop();
     }
 }
@@ -208,6 +260,8 @@ void go_straight()
     analogWrite(REN, SPEED);
 }
 
+
+
 void go_back()
 {
     car_state = CAR_BACKWARD;
@@ -226,8 +280,8 @@ void turn_left()
     digitalWrite(L2, HIGH);
     digitalWrite(R1, HIGH);
     digitalWrite(R2, LOW);
-    analogWrite(LEN, SPEED);
-    analogWrite(REN, SPEED);
+    analogWrite(LEN, SPEED1);
+    analogWrite(REN, SPEED1);
 }
 
 void turn_right()
@@ -237,9 +291,33 @@ void turn_right()
     digitalWrite(L2, LOW);
     digitalWrite(R1, LOW);
     digitalWrite(R2, HIGH);
-    digitalWrite(LEN, SPEED);
-    digitalWrite(REN, SPEED);
+    analogWrite(LEN, SPEED1);
+    analogWrite(REN, SPEED1);
 }
+
+void fast_left()
+{
+    car_state = CAR_LEFT;
+    digitalWrite(L1, LOW);
+    digitalWrite(L2, HIGH);
+    digitalWrite(R1, HIGH);
+    digitalWrite(R2, LOW);
+    analogWrite(LEN, SPEED);
+    analogWrite(REN, SPEED);
+}
+
+void fast_right()
+{
+    car_state = CAR_RIGHT;
+    digitalWrite(L1, HIGH);
+    digitalWrite(L2, LOW);
+    digitalWrite(R1, LOW);
+    digitalWrite(R2, HIGH);
+    analogWrite(LEN, SPEED);
+    analogWrite(REN, SPEED);
+}
+
+
 
 void stop()
 {

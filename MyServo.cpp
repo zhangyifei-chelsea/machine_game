@@ -26,16 +26,20 @@ void MyServo::init(uint16_t minPulse, uint16_t maxPulse, uint16_t initialPulse)
     pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
 }
 
-void MyServo::setPulse(uint16_t pulse)
+void MyServo::setPulse(uint16_t pulse, int delay_time=2)
 {
     if (pulse > m_currentPulse)
     {
-        for (; m_currentPulse < min(m_maxPulse, pulse); m_currentPulse++)
+        for (; m_currentPulse < min(m_maxPulse, pulse); m_currentPulse++){
             pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+            delay(delay_time);
+        }
     }
     else
-        for (; m_currentPulse > max(m_minPulse, pulse); m_currentPulse--)
+        for (; m_currentPulse > max(m_minPulse, pulse); m_currentPulse--){
             pwmServoDriver.setPWM(m_num, 0, m_currentPulse);
+            delay(delay_time);
+        }
     Serial.println(m_num);
     Serial.println(m_currentPulse);
 }

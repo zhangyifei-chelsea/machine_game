@@ -30,7 +30,7 @@ public:
      */
     void init(uint16_t minPulse, uint16_t maxPulse, uint16_t initialPulse);
 
-    void setPulse(uint16_t pulse);
+    void setPulse(uint16_t pulse, int delay_time=2);
 
     void change(int16_t a);
 
