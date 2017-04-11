@@ -8,6 +8,8 @@
 #include <Servo.h>
 #include "Adafruit_PWMServoDriver.h"
 #include <math.h>
+#include <ArduinoSTL.h>
+#include <queue>
 
 #define max(a, b) (((a)>(b))?(a):(b))
 #define min(a, b) (((a)<(b))?(a):(b))
@@ -15,11 +17,21 @@
 class MyServo
 {
 public:
-
+    struct MyServoTask
+    {
+        MyServo *servo;
+        int delay_time;
+        int pulse;
+    };
+    
     static Adafruit_PWMServoDriver pwmServoDriver;
 
     static void setup();
 
+    static void loop();
+    
+    static std::queue<MyServoTask> taskQueue;
+  
     MyServo(uint8_t num);
 
     /**
@@ -32,6 +44,12 @@ public:
 
     void setPulse(uint16_t pulse, int delay_time=2);
 
+    void addTaskPulse(uint16_t pulse, int delay_time=2);
+
+    static void clearTask();
+
+    static bool isTaskEmpty();
+     
     void change(int16_t a);
 
 private:

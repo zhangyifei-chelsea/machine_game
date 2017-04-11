@@ -45,6 +45,7 @@ enum SERVO_NAME
 };
 
 MyServo servo[5] = {MyServo(6), MyServo(2), MyServo(3), MyServo(4), MyServo(5)};
+int car_state_count = 0;
 
 void setup()
 {
@@ -92,6 +93,7 @@ void loop()
     // put your main code here, to run repeatedly:
     if (ps2_status != 0)
     {
+        Serial.println("PS2 controller problem");
         return; //error occured, skip the loop
     }
     if (!routine(50, 0))
@@ -103,54 +105,60 @@ void loop()
     if (ps2x.Analog(PSS_LX) < 10)
     {
         servo[SERVO_HAND].change(4);
-        Serial.println("Left button held down");
+        Serial.println("Left controller turned left");
     }
     else if (ps2x.Analog(PSS_LX) > 220)
     {
         servo[SERVO_HAND].change(-4);
-        Serial.println("Right button held down");
+        Serial.println("Right controller turned right");
     }
     else if (ps2x.Button(PSB_PAD_DOWN))
     {
-        servo[SERVO_NET].setPulse(150);
-        servo[SERVO_2].setPulse(534);
-        servo[SERVO_3].setPulse(338);
-        servo[SERVO_4].setPulse(132);
-        servo[SERVO_HAND].setPulse(240);
+        Serial.println("Down button held down");
+        MyServo::clearTask();
+        servo[SERVO_NET].addTaskPulse(150);
+        servo[SERVO_2].addTaskPulse(534);
+        servo[SERVO_3].addTaskPulse(338);
+        servo[SERVO_4].addTaskPulse(132);
+        servo[SERVO_HAND].addTaskPulse(240);
     }
     else if (ps2x.Button(PSB_PAD_UP))
     {
         //servo[SERVO_HAND].setPulse(400);
+        Serial.println("UP button held down");
         
-        
-        servo[SERVO_4].setPulse(366,4);
-        servo[SERVO_2].setPulse(342,4);
-        servo[SERVO_3].setPulse(558,4);
-        servo[SERVO_2].setPulse(158,4);
-        servo[SERVO_NET].setPulse(150,4);
+        MyServo::clearTask();
+        servo[SERVO_4].addTaskPulse(366,4);
+        servo[SERVO_2].addTaskPulse(342,4);
+        servo[SERVO_3].addTaskPulse(558,4);
+        servo[SERVO_2].addTaskPulse(158,4);
+        servo[SERVO_NET].addTaskPulse(150,4);
     }
     else if (ps2x.Button(PSB_PAD_RIGHT))
     {
         //servo[SERVO_HAND].setPulse(uint16_t pulse);
-        
-        
-        servo[SERVO_4].setPulse(444,4);
-        servo[SERVO_2].setPulse(230,4);
-        servo[SERVO_3].setPulse(362,4);
-        servo[SERVO_NET].setPulse(260);
+        Serial.println("Right button held down");
+
+        MyServo::clearTask();
+        servo[SERVO_4].addTaskPulse(444,4);
+        servo[SERVO_2].addTaskPulse(230,4);
+        servo[SERVO_3].addTaskPulse(362,4);
+        servo[SERVO_NET].addTaskPulse(260);
     }
     else if (ps2x.Button(PSB_PAD_LEFT))
     {
         //servo[SERVO_HAND].setPulse(uint16_t pulse);
+        Serial.println("Left button held down");
         
-        
-        servo[SERVO_4].setPulse(444,4);
-        servo[SERVO_2].setPulse(406,4);
-        servo[SERVO_3].setPulse(214,4);
-        servo[SERVO_NET].setPulse(260);
+        MyServo::clearTask();
+        servo[SERVO_4].addTaskPulse(444,4);
+        servo[SERVO_2].addTaskPulse(406,4);
+        servo[SERVO_3].addTaskPulse(214,4);
+        servo[SERVO_NET].addTaskPulse(260);
     }
     else if (ps2x.Button(PSB_L2) )
     {
+        Serial.println("L2 button held down");
         turn_left();
         delay(delaytime);
         stop();
@@ -158,6 +166,7 @@ void loop()
     }
     else if (ps2x.Button(PSB_R2) )
     {
+        Serial.println("R2 button held down");
         turn_right();
         delay(delaytime);
         stop();
@@ -165,32 +174,32 @@ void loop()
     else if (ps2x.Analog(PSS_LY) < 10)
     {
         servo[SERVO_2].change(4);
-        Serial.println("Up button held down");
+        Serial.println("Left Controller turned down");
     }
     else if (ps2x.Analog(PSS_LY) > 220)
     {
         servo[SERVO_2].change(-4);
-        Serial.println("Down button held down");
+        Serial.println("Left controller turned up");
     }
     else if (ps2x.Analog(PSS_RX) < 10)
     {
         servo[SERVO_4].change(4);
-        Serial.println("Up button held down");
+        Serial.println("Right controller turned left");
     }
     else if (ps2x.Analog(PSS_RX) > 220)
     {
         servo[SERVO_4].change(-4);
-        Serial.println("Down button held down");
+        Serial.println("Right controller turned right");
     }
     else if (ps2x.Analog(PSS_RY) < 10)
     {
         servo[SERVO_3].change(4);
-        Serial.println("Up button held down");
+        Serial.println("Right controller turned down");
     }
     else if (ps2x.Analog(PSS_RY) > 220)
     {
         servo[SERVO_3].change(-4);
-        Serial.println("Down button held down");
+        Serial.println("Right controller turned up");
     }
 
 
@@ -206,31 +215,38 @@ void loop()
         Serial.println("R1 button held down");
     }
 
-
-    if (ps2x.Button(PSB_TRIANGLE) && car_state != CAR_FORWARD)
+    
+    if (ps2x.Button(PSB_TRIANGLE))
     {
-        go_straight();
-        delay(delaytime);
-        stop();
+        Serial.println("Triangle button held down");
+        car_state_count = 1;
+        if (car_state != CAR_FORWARD) go_straight();
     }
-    else if (ps2x.Button(PSB_CROSS) && car_state != CAR_BACKWARD)
+    else if (ps2x.Button(PSB_CROSS))
     {
-        go_back();
-        delay(delaytime);
-        stop();
+        Serial.println("Cross button held down");
+        car_state_count = 1;
+        if (car_state != CAR_BACKWARD) go_back();
     }
-    else if (ps2x.Button(PSB_SQUARE) && car_state != CAR_LEFT)
+    else if (ps2x.Button(PSB_SQUARE))
     {
-        fast_left();
-        delay(delaytime);
-        stop();
+        Serial.println("Square button held down");
+        car_state_count = 1;
+        if (car_state != CAR_LEFT) fast_left();
     }
-    else if (ps2x.Button(PSB_CIRCLE) && car_state != CAR_RIGHT)
+    else if (ps2x.Button(PSB_CIRCLE))
     {
-        fast_right();
-        delay(delaytime);
-        stop();
+        Serial.println("Circle button held down");
+        car_state_count = 1;
+        if (car_state != CAR_RIGHT) fast_right();
     }
+    else if (car_state != CAR_STOP)
+    {
+        Serial.println("No button held down");
+        if (car_state_count > 0) car_state_count--;
+        else stop();
+    }
+    MyServo::loop();
 }
 
 bool routine(const unsigned long int t, const unsigned int i)
@@ -244,6 +260,7 @@ bool routine(const unsigned long int t, const unsigned int i)
     if (timeNow - timeOfLast[i] >= t)
     {
         timeOfLast[i] = timeNow;
+        //Serial.println(timeNow);
         return true;
     }
     return false;
